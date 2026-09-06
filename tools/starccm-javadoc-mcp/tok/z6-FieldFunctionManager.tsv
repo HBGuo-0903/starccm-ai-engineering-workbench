@@ -1,0 +1,7 @@
+categoria	segmentos	chars	blanco	pct_blanco	trozos_o200k	factor_o200k	trozos_legacy	factor_legacy	pct_chars_z6
+firma	26	1983	183	9.2	373	5.316	388	5.111	32.1
+prosa	8	1404	208	14.8	280	5.014	292	4.808	22.7
+resto	27	2787	264	9.5	543	5.133	587	4.748	45.1
+Z6-directa		6174			1139	5.421	1211	5.098	100.0
+SUMA-categorias		6174			1196		1267		
+MIGAS(suma-directa)					57 (5.0%)		56 (4.6%)		

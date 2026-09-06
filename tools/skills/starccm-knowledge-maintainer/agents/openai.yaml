@@ -1,0 +1,4 @@
+interface:
+  display_name: "STAR-CCM+ Knowledge Maintainer"
+  short_description: "Audit and maintain STAR-CCM+ reference knowledge"
+  default_prompt: "Maintain the STAR-CCM+ knowledge base using index-first scope selection, deduplication, documentation audits, and validation."

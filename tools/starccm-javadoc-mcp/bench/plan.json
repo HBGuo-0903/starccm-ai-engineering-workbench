@@ -1,0 +1,152 @@
+{
+  "schema": "starccm-mcp-bench-plan/2",
+  "derived_from": "agentic-macros/part-4/baseline/queries.json revision 3, status FROZEN",
+  "rule": "Una entrada por clase nombrada en el criterio de aceptacion de la consulta. Por clase: una search_api por nombre simple (limit por defecto, mide el flujo real), una search_api de resolucion (kind=type, limit 500, andamiaje del instrumento) y una get_doc por la pagina resuelta. get_doc se invoca SIN maxChars, para que actue el valor por defecto del handler, que es el parametro bajo prueba.",
+  "notes": [
+    "Este plan NO esta congelado en queries.json: alli se congela la pregunta y el criterio, no la secuencia de llamadas. Por eso se versiona aparte y se commitea ANTES de la primera ejecucion valida.",
+    "Ajustar este plan despues de ver resultados invalida la comparacion antes/despues.",
+    "El ejecutor mide sustrato entregado (caracteres, llamadas, truncamiento). NO evalua el criterio de aceptacion: eso exige un modelo leyendo la respuesta y se hace por sesion, aparte.",
+    "La search_api de resolucion existe porque search_api filtra por 'includes' sobre el nombre simple y devuelve los primeros 'limit' de un total mayor: Simulation da 263 coincidencias y la clase exacta cae fuera de las 25 por defecto. Sus caracteres se registran pero NO cuentan como coste de flujo: es andamiaje, no la ruta que seguiria un modelo.",
+    "chars_get_doc es la metrica sensible al tope y no depende de ninguna de las dos search_api.",
+    "2026-08-06: canario rescatada actualizado al texto colapsado (commit a677897 del servidor): Simulation entrega 26898 (columna colapsada de tok/paginas.tsv @ 6b6f248). PartManager colapsada mide 56494, sigue sobre 50000: canario no-rescatada sin cambio. Los at_20000 siguen validos por coincidencia (ambas colapsadas superan 20000)."
+  ],
+  "treatment": [
+    "Q08 (Simulation, textChars 29981 en salida-d): rescatada por el tope de 50000. Pasa de 20016 entregados y truncada, a 29981 entera.",
+    "Q02 (PartManager, textChars 60780 en salida-d): NO rescatada. Pasa de 20016 a 50016 y sigue truncada. Delta de 30000, tres veces el de Q08. Es una de las 13 clases que 50000 deja fuera; el puente la daba por control porque la afirmacion 'Q08 es la unica unidad de tratamiento' se hizo sobre las etiquetas de queries.json, antes de que existiera un plan de llamadas explicito.",
+    "Las otras trece consultas son control de delta cero: ninguna de sus clases supera 20000 en salida-d. Las mayores son Report 18573, FieldFunctionManager 16176, Continuum 15811, ClientServerObjectManager 15360."
+  ],
+  "queries": [
+    {
+      "id": "Q01",
+      "role": "control",
+      "classes": [
+        "FieldFunctionManager"
+      ]
+    },
+    {
+      "id": "Q02",
+      "role": "treatment-cap-unrescued",
+      "classes": [
+        "PartManager"
+      ]
+    },
+    {
+      "id": "Q03",
+      "role": "control",
+      "classes": [
+        "AnalysisReport"
+      ]
+    },
+    {
+      "id": "Q04",
+      "role": "control",
+      "classes": [
+        "AreaAverageReport"
+      ]
+    },
+    {
+      "id": "Q05",
+      "role": "control",
+      "classes": [
+        "Boundary",
+        "WallBoundary"
+      ]
+    },
+    {
+      "id": "Q06",
+      "role": "control",
+      "classes": [
+        "VectorReport"
+      ]
+    },
+    {
+      "id": "Q07",
+      "role": "control",
+      "classes": [
+        "TableManager"
+      ]
+    },
+    {
+      "id": "Q08",
+      "role": "treatment-cap",
+      "classes": [
+        "Simulation"
+      ]
+    },
+    {
+      "id": "Q09",
+      "role": "control",
+      "classes": [
+        "Report"
+      ]
+    },
+    {
+      "id": "Q10",
+      "role": "control",
+      "classes": [
+        "GlobalParameterManager",
+        "ClientServerObjectManager"
+      ]
+    },
+    {
+      "id": "Q11",
+      "role": "control",
+      "classes": [
+        "Continuum"
+      ]
+    },
+    {
+      "id": "Q12",
+      "role": "control",
+      "classes": [
+        "ThresholdPart"
+      ]
+    },
+    {
+      "id": "Q13",
+      "role": "control",
+      "classes": [
+        "PlaneProbePart"
+      ]
+    },
+    {
+      "id": "Q14",
+      "role": "control",
+      "classes": [
+        "Continuum",
+        "AutoMeshOperation"
+      ]
+    },
+    {
+      "id": "Q15",
+      "role": "control",
+      "classes": [
+        "UserFieldFunction"
+      ]
+    }
+  ],
+  "canary": {
+    "note": "Comprobacion de sustrato antes de aceptar una ejecucion. Los valores esperados dependen del tope vigente y se declaran al ejecutor con --cap-esperado.",
+    "class": "Simulation",
+    "at_20000": {
+      "outChars": 20016,
+      "truncated": true
+    },
+    "at_50000": {
+      "outChars": 26898,
+      "truncated": false
+    }
+  },
+  "canary_unrescued": {
+    "note": "Segundo canario: PartManager comprueba que una clase por encima del tope nuevo sigue truncandose. Sin el, una ejecucion a 50000 no distingue 'el tope subio' de 'el tope desaparecio'.",
+    "class": "PartManager",
+    "at_20000": {
+      "outChars": 20016,
+      "truncated": true
+    },
+    "at_50000": {
+      "outChars": 50016,
+      "truncated": true
+    }
+  }
+}

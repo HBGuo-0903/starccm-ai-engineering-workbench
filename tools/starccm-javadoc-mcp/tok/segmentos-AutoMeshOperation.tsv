@@ -1,0 +1,12 @@
+zona	chars	blanco	pct_blanco	trozos_o200k	factor_o200k	trozos_legacy	factor_legacy	pct_chars_pag	pct_trozos_pag
+Z0-preambulo	89	11	12.4	23	3.870	22	4.045	0.7	0.8
+Z1-navegacion	106	13	12.3	19	5.579	20	5.300	0.8	0.7
+Z2-indice-lateral	1149	60	5.2	250	4.596	265	4.336	8.6	9.1
+Z3-cabecera-tipo	703	63	9.0	139	5.058	160	4.394	5.2	5.1
+Z4-prosa-clase	0	0	-	0	-	0	-	0.0	0.0
+Z5-tablas-summary	6335	666	10.5	1297	4.884	1349	4.696	47.3	47.2
+Z6-detail	5019	508	10.1	1022	4.911	1052	4.771	37.5	37.2
+Z7-cierre	0	0	-	0	-	0	-	0.0	0.0
+PAGINA-directa	13401			2745	4.882	2863	4.681	100.0	100.0
+SUMA-zonas	13401			2750		2868			
+MIGAS(suma-directa)				5 (0.2%)		5 (0.2%)			

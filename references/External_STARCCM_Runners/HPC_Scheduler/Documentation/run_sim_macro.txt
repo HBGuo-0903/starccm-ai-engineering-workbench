@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Example STARCCM Run File (for rocket_example.sim)
+# sbatch run_sim_macro.txt
+
+#SBATCH -J starsim --account=ng_inletcfd 
+#SBATCH --partition=normal_q --nodes=1 --ntasks-per-node=4 --cpus-per-task=8 --time=0-00:30:00
+#SBATCH --output="/projects/ng_inletcfd/Training/slurm-starsim-%j.out"
+
+echo "Batch information | Job ID: $SLURM_JOBID | Nodes: $SLURUM_NNODES | Tasks: $SLURM_NTASKS | Num Parallel: $SLURM_NPROCS | CPUs/Task: $SLURM_CPUS_PER_TASK"
+
+STAR_PATH=/apps/common/software/STAR-CCM+/18.02.008-R8/STAR-CCM+18.02.008-R8/star/bin/
+SIM_PATH=/projects/ng_inletcfd/Training/rocket_example.sim
+MACRO_PATH=/projects/ng_inletcfd/Training/rocket_macro.java
+
+$STAR_PATH/starccm+ -load $SIM_PATH -batch $MACRO_PATH -batchsystem slurm -np $SLURM_NTASKS
+
+module reset
+
+echo "SCRIPT COMPELTE"

@@ -1,0 +1,152 @@
+{
+  "generado": "2026-08-06T00:51:57.991Z",
+  "server_commit": "8eec993",
+  "starccm_version": "2606 Build 21.04.007",
+  "node": "v20.14.0",
+  "queries_revision": 3,
+  "plan_schema": "starccm-mcp-bench-plan/2",
+  "cap_declarado": 20000,
+  "canario_rescatada": "canario rescatada: OK (Simulation 20016, truncado=true)",
+  "canario_no_rescatada": "canario no rescatada: OK (PartManager 20016, truncado=true)",
+  "barrido_ms": 462,
+  "clases_sin_resolver": [],
+  "llamadas": 54,
+  "chars_flujo_total": 281505,
+  "por_consulta": [
+    {
+      "id": "Q01",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 19975,
+      "chars_get_doc": 16176,
+      "chars_andamiaje": 1130,
+      "truncadas": 0
+    },
+    {
+      "id": "Q02",
+      "role": "treatment-cap-unrescued",
+      "llamadas_flujo": 2,
+      "chars_flujo": 23211,
+      "chars_get_doc": 20016,
+      "chars_andamiaje": 1365,
+      "truncadas": 1
+    },
+    {
+      "id": "Q03",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 12380,
+      "chars_get_doc": 10817,
+      "chars_andamiaje": 568,
+      "truncadas": 0
+    },
+    {
+      "id": "Q04",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 9012,
+      "chars_get_doc": 7980,
+      "chars_andamiaje": 228,
+      "truncadas": 0
+    },
+    {
+      "id": "Q05",
+      "role": "control",
+      "llamadas_flujo": 4,
+      "chars_flujo": 21484,
+      "chars_get_doc": 17893,
+      "chars_andamiaje": 28655,
+      "truncadas": 0
+    },
+    {
+      "id": "Q06",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 11311,
+      "chars_get_doc": 10398,
+      "chars_andamiaje": 322,
+      "truncadas": 0
+    },
+    {
+      "id": "Q07",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 14028,
+      "chars_get_doc": 10787,
+      "chars_andamiaje": 852,
+      "truncadas": 0
+    },
+    {
+      "id": "Q08",
+      "role": "treatment-cap",
+      "llamadas_flujo": 2,
+      "chars_flujo": 23352,
+      "chars_get_doc": 20016,
+      "chars_andamiaje": 33814,
+      "truncadas": 1
+    },
+    {
+      "id": "Q09",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 21007,
+      "chars_get_doc": 18573,
+      "chars_andamiaje": 56545,
+      "truncadas": 0
+    },
+    {
+      "id": "Q10",
+      "role": "control",
+      "llamadas_flujo": 4,
+      "chars_flujo": 32756,
+      "chars_get_doc": 25477,
+      "chars_andamiaje": 840,
+      "truncadas": 0
+    },
+    {
+      "id": "Q11",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 18417,
+      "chars_get_doc": 15811,
+      "chars_andamiaje": 4126,
+      "truncadas": 0
+    },
+    {
+      "id": "Q12",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 13084,
+      "chars_get_doc": 11120,
+      "chars_andamiaje": 176,
+      "truncadas": 0
+    },
+    {
+      "id": "Q13",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 12517,
+      "chars_get_doc": 10959,
+      "chars_andamiaje": 266,
+      "truncadas": 0
+    },
+    {
+      "id": "Q14",
+      "role": "control",
+      "llamadas_flujo": 4,
+      "chars_flujo": 36116,
+      "chars_get_doc": 30423,
+      "chars_andamiaje": 6850,
+      "truncadas": 0
+    },
+    {
+      "id": "Q15",
+      "role": "control",
+      "llamadas_flujo": 2,
+      "chars_flujo": 12855,
+      "chars_get_doc": 10646,
+      "chars_andamiaje": 466,
+      "truncadas": 0
+    }
+  ]
+}

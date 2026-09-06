@@ -1,0 +1,3 @@
+graft src/StarCCM/sphinx_build/html
+recursive-include src/StarCCM/test *.py
+

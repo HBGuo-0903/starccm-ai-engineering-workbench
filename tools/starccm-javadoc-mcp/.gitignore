@@ -1,0 +1,15 @@
+
+# Barridos del corpus: los TSV se regeneran con los scripts (~67 s).
+# Los summary.json si se versionan: llevan version, build y las cifras.
+salida*/*.tsv
+salida*/corpus-skipped.txt
+salida*/corpus-errors.txt
+
+
+# Dependencias
+node_modules/
+
+# Cache de sesion de Claude Code
+.claude/settings.local.json
+.claude.json
+

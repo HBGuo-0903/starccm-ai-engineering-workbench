@@ -1,0 +1,46 @@
+# Files derived from the private working repository (starccm-mcp) into this one.
+# One path per line, relative to both roots. Anything not listed here stays private.
+# Derivation: copy this list, run the grep gate for user paths and LLM trace fields,
+# then commit. Never copy a folder.
+server.mjs
+lib/extract.mjs
+package.json
+package-lock.json
+.gitignore
+tools/canario-supresion.mjs
+tools/diagnostico-90.mjs
+tools/disecar-z6.mjs
+tools/flatten-map.mjs
+tools/medir-tokens.mjs
+tools/medir-tokens-colapso.mjs
+tools/muestra-factor.mjs
+tools/recon-rutas.mjs
+tools/recon-zonas.mjs
+tools/segmentar-pagina.mjs
+tools/tok-selftest.mjs
+tools/verificar-colapso.mjs
+sweep-corpus-b.mjs
+sweep-corpus-c.mjs
+sweep-corpus-c2.mjs
+sweep-corpus-e.mjs
+tok/contraste-colapso.tsv
+tok/corpus-post-colapso.tsv
+tok/corpus-post-colapso-summary.json
+tok/muestra-corpus.tsv
+tok/paginas.tsv
+tok/paginas-colapso.tsv
+tok/segmentos-AutoMeshOperation.tsv
+tok/segmentos-FieldFunctionManager.tsv
+tok/z6-AutoMeshOperation.tsv
+tok/z6-FieldFunctionManager.tsv
+tok/esperados-barrido-colapso.md
+tok/esperados-dedup-flatten.md
+tok/esperados-muestra-corpus.md
+tok/esperados-remedida-colapso.md
+bench/plan.json
+bench/runs/antes-20000/bench-summary.json
+bench/runs/colapso-50000/bench-summary.json
+bench/runs/despues-50000/bench-summary.json
+bench/runs/antes-20000/bench-calls.tsv
+bench/runs/colapso-50000/bench-calls.tsv
+bench/runs/despues-50000/bench-calls.tsv

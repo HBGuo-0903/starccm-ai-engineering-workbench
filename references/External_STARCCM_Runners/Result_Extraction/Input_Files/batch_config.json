@@ -1,0 +1,27 @@
+{
+    "star_executable": "starccm2022",
+    "template_sim": "bend_tube.sim",
+    "java_macro":"sim.java",
+    "simulations": [
+        {
+            "case_name": "mesh_2mm",
+            "mesh_size": 2          
+        },
+        {
+            "case_name": "mesh_1mm",
+            "mesh_size": 1          
+        },
+        {
+            "case_name": "mesh_05mm",
+            "mesh_size": 0.5          
+        },
+        {
+            "case_name": "mesh_025mm",
+            "mesh_size": 0.25          
+        },
+        {
+            "case_name": "mesh_0125mm",
+            "mesh_size": 0.125          
+        }
+    ]
+}

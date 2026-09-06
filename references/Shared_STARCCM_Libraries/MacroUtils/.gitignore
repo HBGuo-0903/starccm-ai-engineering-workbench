@@ -1,0 +1,23 @@
+# NetBeans and Compiler files
+.gradle/*
+build/
+dist/
+jars/
+nbproject/
+build.xml
+manifest.mf
+
+# STAR-CCM+ files
+*.sim
+*.sim~
+*.simh
+
+# Python files
+.cache
+.spyproject
+*.pyc
+
+# Other files or folders
+.directory
+temp_*/
+*.7z

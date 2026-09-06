@@ -1,0 +1,444 @@
+#! /bin/csh
+# command file to run MSES from this directory
+
+# users should set up location for binaries and editor here
+#env | grep MSES
+set bin  = /usr/local/src/Mses/bin
+echo "bin = $bin"
+
+set edit = vi   
+
+echo " "
+
+set xxx = $1
+if ($xxx == "") then
+  echo Enter MSES file extension
+  set xxx = $<
+endif
+
+set mdatxxx = mdat.$xxx
+set msesxxx = mses.$xxx
+set bladexxx = blade.$xxx
+set gridparxxx = gridpar.$xxx
+set alfasxxx = alfas.$xxx
+set machsxxx = machs.$xxx
+set cellsxxx = cells.$xxx
+set machsxxx = machs.$xxx
+set modesxxx = modes.$xxx
+set movesxxx = moves.$xxx
+set polarxxx = polarx.$xxx
+set msweepxxx = msweepx.$xxx
+#set lprinter = -d$MSES_PRINT
+
+if($2 != "") then
+   set bladexxx = blade.$2
+   echo "Setting Blade File to: " $bladexxx
+endif
+
+set niter = " "
+
+
+loop:
+echo "  ________________________________________"
+echo " "
+echo "    1   AIRSET   Airfoil editor"
+echo "    2   MSET     Grid generator"
+echo "    3   MSES     Euler/BL analysis"
+echo "    4   MSIS     Incompressible Euler/BL analysis"
+echo "    5   MPOLAR   Euler/BL alpha sweep analysis"
+echo "    6   MPOLIS   Incompressible Euler/BL alpha sweep analysis"
+echo "    9   MPLOT    Plot Cp/Mach/BL distributions"
+echo "   10   PPLOT    Plot Alpha/CL polars"
+echo "   11   MXPLOT   Plot Alpha/CL polar Cp distributions"
+echo "   11a  MXPLOT   Plot Mach polar Cp distributions"
+echo "   12   SPLOT    Plot Mach sweeps"
+echo "   13   MEDP     Pressure distribution editing"
+echo "   14   LINDOP   Optimization"
+echo " "
+echo "   15   Edit  mses."$xxx
+echo "   16   Edit  "$bladexxx
+echo "   17   Edit  alfas."$xxx
+echo "   18   Edit  machs."$xxx
+echo "   19   Edit  modes."$xxx
+echo "   20   Edit  moves."$xxx
+echo "   21   Copy all  *."$xxx"  files to new  *.xxx"
+echo "   22   Change current extension:  "$xxx
+echo " "
+echo "   23   Print  plot.ps"
+echo "   24   Toggle X-Window background color"
+echo "   25   Set default number of MSES iterations"
+echo "   26   Write Blade geometry to a VSAERO foil"
+echo " "
+prompt:
+echo -n "Select option (0=quit):  "
+set option = $<
+
+switch($option)
+
+case "":
+   goto prompt
+breaksw
+
+case "0":
+   exit
+breaksw
+
+case "1":
+  if($2 != "")then
+     $bin/airset $2
+  else
+     $bin/airset $xxx
+  endif
+breaksw
+
+case "2":
+  $bin/mset $xxx $2
+breaksw
+
+case "3":
+ if (-e $mdatxxx) then
+   if (-e $msesxxx) then
+     $bin/mses $xxx $niter
+   else
+     echo "file  "$msesxxx"  not found"
+   endif
+ else
+   echo "file  "$mdatxxx"  not found"
+ endif
+breaksw
+
+case "4":
+ if (-e $mdatxxx) then
+   if (-e $msesxxx) then
+     $bin/msis $xxx
+   else
+     echo "file  "$msesxxx"  not found"
+   endif
+ else
+   echo "file  "$mdatxxx"  not found"
+ endif
+breaksw
+
+case "5":
+ if (-e $mdatxxx) then
+   if (-e $msesxxx) then
+     $bin/mpolar $xxx
+   else
+     echo "file  "$msesxxx"  not found"
+   endif
+ else
+   echo "file  "$mdatxxx"  not found"
+ endif
+breaksw
+
+
+case "6":
+ if (-e $mdatxxx) then
+   if (-e $msesxxx) then
+     $bin/mpolis $xxx
+   else
+     echo "file  "$msesxxx"  not found"
+   endif
+ else
+   echo "file  "$mdatxxx"  not found"
+ endif
+breaksw
+
+case "9":
+  if (-e $mdatxxx) then
+    $bin/mplot $xxx
+  else
+    echo "file  "$mdatxxx"  not found"
+  endif
+breaksw
+
+case "10":
+     $bin/pplot
+breaksw
+
+case "11":
+ if (-e $polarxxx) then
+     $bin/mxplot $polarxxx
+  else
+   echo "file  "$polarxxx"  not found"
+ endif
+breaksw
+
+case "11a":
+ if (-e $msweepxxx) then
+     $bin/mxplot $msweepxxx
+  else
+   echo "file  "$msweepxxx"  not found"
+ endif
+breaksw
+
+case "12":
+ if (-e $msweepxxx) then
+     $bin/splot $msweepxxx
+  else
+   echo "file  "$msweepxxx"  not found"
+ endif
+breaksw
+
+case "13":
+  if (-e $mdatxxx) then
+    $bin/medp $xxx
+  else
+    echo "file  "$mdatxxx"  not found"
+  endif
+breaksw
+
+case "14":
+  if (-e $mdatxxx) then
+    $bin/lindop $xxx
+  else
+    echo "file  "$mdatxxx"  not found"
+  endif
+breaksw
+
+case "15":
+  $edit $msesxxx
+breaksw
+
+case "16":
+  $edit $bladexxx
+breaksw
+
+case "17":
+  $edit $alfasxxx
+breaksw
+
+case "18":
+  $edit $machsxxx
+breaksw
+
+case "19":
+  $edit $modesxxx
+breaksw
+
+case "20":
+  $edit $movesxxx
+breaksw
+
+case "21":
+  echo -n "Enter new MSES file extension: "
+  set xxxnew = $<
+
+  set mdatnew = mdat.$xxxnew
+  set msesnew = mses.$xxxnew
+  set bladenew = blade.$xxxnew
+  set gridparnew = gridpar.$xxxnew
+  set alfasnew = alfas.$xxxnew
+  set cellsnew = cells.$xxxnew
+  set machsnew = machs.$xxxnew
+  set modesnew = modes.$xxxnew
+  set movesnew = moves.$xxxnew
+
+  if(-e $mdatxxx) then
+    if (-e $mdatnew) then
+      echo -n "File  "$mdatnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $mdatxxx $mdatnew
+        echo "cp "$mdatxxx" "$mdatnew
+      endif
+    else
+      cp $mdatxxx $mdatnew
+      echo "cp "$mdatxxx" "$mdatnew
+    endif
+  else
+    echo "file  "$mdatxxx"  not found"
+  endif
+
+  if(-e $msesxxx) then
+    if (-e $msesnew) then
+      echo -n "File  "$msesnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $msesxxx $msesnew
+        echo "cp "$msesxxx" "$msesnew
+      endif
+    else
+      cp $msesxxx $msesnew
+      echo "cp "$msesxxx" "$msesnew
+    endif
+  else
+    echo "file  "$msesxxx"  not found"
+  endif
+
+  if(-e $bladexxx) then
+    if (-e $bladenew) then
+      echo -n "File  "$bladenew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $bladexxx $bladenew
+        echo "cp "$bladexxx" "$bladenew
+      endif
+    else
+      cp $bladexxx $bladenew
+      echo "cp "$bladexxx" "$bladenew
+    endif
+  else
+    echo "file  "$bladexxx"  not found"
+  endif
+
+  if(-e $gridparxxx) then
+    if (-e $gridparnew) then
+      echo -n "File  "$gridparnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $gridparxxx $gridparnew
+        echo "cp "$gridparxxx" "$gridparnew
+      endif
+    else
+      cp $gridparxxx $gridparnew
+      echo "cp "$gridparxxx" "$gridparnew
+    endif
+  else
+    echo "file  "$gridparxxx"  not found"
+  endif
+
+  if(-e $alfasxxx) then
+    if (-e $alfasnew) then
+      echo -n "File  "$alfasnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $alfasxxx $alfasnew
+        echo "cp "$alfasxxx" "$alfasnew
+      endif
+    else
+      cp $alfasxxx $alfasnew
+      echo "cp "$alfasxxx" "$alfasnew
+    endif
+  else
+    echo "file  "$alfasxxx"  not found"
+  endif
+
+  if(-e $cellsxxx) then
+    if (-e $cellsnew) then
+      echo -n "File  "$cellsnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $cellsxxx $cellsnew
+        echo "cp "$cellsxxx" "$cellsnew
+      endif
+    else
+      cp $cellsxxx $cellsnew
+      echo "cp "$cellsxxx" "$cellsnew
+    endif
+  else
+    echo "file  "$cellsxxx"  not found"
+  endif
+
+  if(-e $machsxxx) then
+    if (-e $machsnew) then
+      echo -n "File  "$machsnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $machsxxx $machsnew
+        echo "cp "$machsxxx" "$machsnew
+      endif
+    else
+      cp $machsxxx $machsnew
+      echo "cp "$machsxxx" "$machsnew
+    endif
+  else
+    echo "file  "$machsxxx"  not found"
+  endif
+
+  if(-e $modesxxx) then
+    if (-e $modesnew) then
+      echo -n "File  "$modesnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $modesxxx $modesnew
+        echo "cp "$modesxxx" "$modesnew
+      endif
+    else
+      cp $modesxxx $modesnew
+      echo "cp "$modesxxx" "$modesnew
+    endif
+  else
+    echo "file  "$modesxxx"  not found"
+  endif
+
+  if(-e $movesxxx) then
+    if (-e $movesnew) then
+      echo -n "File  "$movesnew"  exists.  Overwrite?  Y"
+      set ans = $<
+      if($ans == "n" || $ans == "N") then
+        else
+        cp $movesxxx $movesnew
+        echo "cp "$movesxxx" "$movesnew
+      endif
+    else
+      cp $movesxxx $movesnew
+      echo "cp "$movesxxx" "$movesnew
+    endif
+  else
+    echo "file  "$movesxxx"  not found"
+  endif
+
+breaksw
+
+
+case "22":
+  echo -n "Input new dataset extension:  "
+  set xxx = $<
+  set mdatxxx = mdat.$xxx
+  set msesxxx = mses.$xxx
+  set bladexxx = blade.$xxx
+  set gridparxxx = gridpar.$xxx
+  set alfasxxx = alfas.$xxx
+  set cellsxxx = cells.$xxx
+  set machsxxx = machs.$xxx
+  set modesxxx = modes.$xxx
+  set movesxxx = moves.$xxx
+breaksw
+
+
+case "23":
+  echo "lp plot.ps"
+  lp plot.ps $lprinter
+  goto prompt
+breaksw
+
+case "24":
+  set bg = `printenv XPLOT11_BACKGROUND`
+  echo " "
+  if ($bg == "black") then
+    setenv XPLOT11_BACKGROUND white
+    echo  "XPLOT11_BACKGROUND=white"
+  else
+    setenv XPLOT11_BACKGROUND black
+    echo  "XPLOT11_BACKGROUND=black"
+  endif
+  echo " "
+breaksw
+
+case "25":
+  echo -n "Enter default number of iterations (<return> if no default):  "
+  set niter = $<
+breaksw
+
+case "26":
+     $bin/m2v $xxx
+breaksw
+
+
+default:
+  goto loop
+breaksw
+
+endsw
+
+goto loop
+

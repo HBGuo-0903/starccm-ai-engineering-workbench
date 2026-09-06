@@ -1,0 +1,12 @@
+#!/bin/bash
+# Hello World Script
+# sbatch hello_world.txt
+
+#SBATCH -J hello-world --account=ng_inletcfd
+#SBATCH --partition=normal_q --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 --time=0-00:10:00
+
+echo "Hello world from..."; hostname
+echo "Working directory is: "; pwd
+echo "Changing directory to $SLURM_SUBMIT_DIR"
+cd $SLURM_SUBMIT_DIR
+module reset

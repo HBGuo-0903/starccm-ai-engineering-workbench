@@ -1,0 +1,4 @@
+interface:
+  display_name: "STAR-CCM+ Script Generator"
+  short_description: "Generate STAR-CCM+ Java scripts from verified references"
+  default_prompt: "Generate a STAR-CCM+ script using the references index, local examples, and verified official API documentation."

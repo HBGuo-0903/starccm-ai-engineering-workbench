@@ -1,0 +1,187 @@
+#!/usr/bin/perl -w
+#Routine for running multiple cases of Star-CCM+ at the desired
+#ALPHA and BETA consition. To run it requires a user provided input file as the argument and a 
+#user provided *.qsub file in the directory.
+#
+#Aeronautical Testing Service, INC
+#IR 31 Aug 2007 Paul Christensen
+#R1 29 May 2008 Added the ability to define beta in the input file. -PC
+#R2 12 Mar 2010 Added provisions to not change comment lines in qsub - pc
+#R3 08 Oct 2010 Added provisions that will change the name of the *.sim file to reflect
+#               the alpha and beta conditions. Also changed are the *.in file links and qsub
+#               name line.
+
+# Module declarations #
+#=========================================
+use File::Copy; #uses the file copy module
+use Cwd;
+
+# Main begins
+#=========================================
+@INFILE = @ARGV;
+foreach $fid (@INFILE){
+    open(WORKING, "$fid") || die "Couldn't open multi Star input file! $!\n";
+    $alpha_trig = 0;
+    $grid_trig = 0;
+    
+    while(<WORKING>){
+        next if $_ =~ /^#/;     #skips any line that starts with a # (comment line)
+        next if $_ =~ /^\s*$/;   #skips blank lines
+ 
+        if($_ =~ m/^ALPHAS/o){
+            $alpha_trig = 1;
+            $grid_trig = 0;
+            next;
+        }
+    
+        if($_ =~ m/^GRIDS/o){
+            $grid_trig = 1;
+            $alpha_trig = 0;
+            next;
+        }
+
+        if($alpha_trig == 1 && $grid_trig == 0){
+            chomp($_);
+            @split_line = split(" ",$_);
+            push(@alphas, $split_line[0]);
+            push(@betas,  $split_line[1]); 
+        }
+        elsif($grid_trig ==1 && $alpha_trig ==0){
+            chomp($_);
+            push(@grids, $_);
+        }
+        else{
+        }
+    }
+
+    close(WORKING);
+}
+
+# Creates the directories for the different alpha and beta combinations and copies the files to 
+# those directories. 
+$base_dir = getcwd();
+for($i = 0; $i < scalar(@alphas); $i++){
+@old_name =();
+$new_name = ();
+$catchTrig = 0;   
+    $alpha_trig = 0;
+    if ($alphas[$i] < 0){
+        $d_alpha = abs($alphas[$i]);
+        $d_alpha = "n".$d_alpha;
+        }
+    else{
+        $d_alpha = abs($alphas[$i]);
+        }
+        
+    if ($betas[$i] < 0){
+        $d_beta = abs($betas[$i]);
+        $d_beta = "n".$d_beta;
+    }
+    else{
+        $d_beta = abs($betas[$i]);
+    }
+    $directory[$i] = "a".$d_alpha."b".$d_beta;
+    mkdir $directory[$i];
+
+##### Section that clears the *.sim files from the directory if they already exist###
+    chdir $directory[$i] or die "Failed to change directory to $directory! $!";
+    opendir(DIR, ".");
+    @sfile = grep(/\.sim/,readdir(DIR));
+    closedir(DIR);
+	if(scalar(@sfile) > 0){
+	    unlink($sfile[0]);
+		print("\nDeleting existing *.sim file in $directory[$i]...\n")
+	}
+    chdir $base_dir;
+###############################################################################3
+  
+    print("\n");
+    for($j = 0; $j < scalar(@grids); $j++){
+        print("Copying $grids[$j] to $directory[$i]...\n");
+        copy($grids[$j], $directory[$i]) or die "Copy of $grids[$j] to $directory[$i] failed! $!\n";
+        sleep 10
+    } #end of $j loop
+    
+    chdir $directory[$i] or die "Failed to change directory to $directory! $!";
+        
+ 
+    opendir(DIR, ".");
+    @sfile = grep(/\.sim/,readdir(DIR));
+    closedir(DIR);
+    @old_name = split(/\./, $sfile[0]);
+    $new_name = $old_name[0]."_".$directory[$i].".".$old_name[1];
+    rename($sfile[0],$new_name);
+
+    open(NEW, ">new") or die "Failed to open new in $directory[$i]! $!";
+    open(OLD, "<starccm.qsub") or die "Failed to open qsub file in $directory[$i]! $!";
+
+    @dir_vec = unitV($alphas[$i], $betas[$i]);
+    $new_vec = join(", ", @dir_vec);
+    #print("$new_vec\n");
+        while(<OLD>){
+	    if ( $_ =~ m/^\//){ #prints comment lines in qsub file (they begin with //)
+		print NEW $_;
+		} 
+            elsif ( $_ =~ m/(\d+.\d+),\s(\d+.\d+),\s(\d+.\d+)/ ){
+                s/(\d+.\d+),\s(\d+.\d+),\s(\d+.\d+)/$new_vec/;
+                $linecaught = $_;
+                print NEW $linecaught;
+		$catchTrig = 1;
+                 }#end of if  
+            else{	#prints all other lines
+
+		if ( $_ =~ m/PBS -N/){
+			chomp($_);
+			$_ = $_."_".$directory[$i]."\n";
+                	print NEW $_;
+                }   
+		else{
+			print NEW $_;
+		}
+		}
+            }
+        
+    close(OLD);
+    close(NEW);
+    rename("new", "starccm.qsub") or die "Couldn't rename file! $!";
+    if ($catchTrig > 0){
+	sleep 5;
+	print("Submitting $directory[$i] for processing...\n\n");                     
+    	`qsub starccm.qsub`;                                                           
+    	sleep 5;
+    	chdir $base_dir;
+	}
+     else{
+	print("Format of unit vector line in starccm.qsub is not the right format! $!");
+	print("\n \n Exiting job submission!!!!!!!!!!!!!!!!!!!\n");
+	die;
+	}
+
+}   #end of $i loop
+
+
+
+#for($i = 0; $i < scalar(@alphas); $i++){
+ #       chdir $directory[$i] or die "Failed to change directory to $directory! $!";
+ #       
+ #       chdir $base_dir;
+        
+#} #end of $i loop to execute the various alphas declared in input file.
+
+print("Your StarCCM+ jobs have been submitted!\n");
+##############################################################################
+# Subroutine that calculates unit vector values from a give angle in degrees #
+##############################################################################
+
+sub unitV{
+    my(@arrayOut) = ();
+    my($alpha) = $_[0];
+    my($beta) = $_[1];
+    $alpha = $alpha/57.2957;
+    $beta = $beta/57.2957;
+    push(@arrayOut, cos($beta)*cos($alpha));
+    push(@arrayOut, -1*sin($beta)*cos($alpha));
+    push(@arrayOut, sin($alpha));
+    return(@arrayOut);
+
+}

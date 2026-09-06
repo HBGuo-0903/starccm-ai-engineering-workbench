@@ -1,0 +1,13 @@
+Metadata-Version: 1.1
+Name: StarCCM
+Version: 0.0.1
+Summary: OpenMDAO interface to CD-adapco's STAR-CCM+, CFD Simulation Software
+Home-page: UNKNOWN
+Author: UNKNOWN
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Keywords: openmdao, Star-CCM+, CFD, volume mesh
+Platform: UNKNOWN
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering

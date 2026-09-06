@@ -1,0 +1,20 @@
+#!/bin/bash
+# sbatch runDM.txt
+
+#SBATCH -J DM_proj --account=ng_inletcfd 
+#SBATCH --partition=normal_q --nodes=1 --ntasks-per-node=4 --cpus-per-task=4 --time=0-02:00:00
+#SBATCH --output="/projects/ng_inletcfd/starccm_slurm/project-out-%j.out"
+
+echo "Starting dmRun.sh"
+echo "Batch information | Job ID: $SLURM_JOBID | Nodes: $SLURUM_NNODES | Tasks: $SLURM_NTASKS | Num Parallel: $SLURM_NPROCS | CPUs/Task: $SLURM_CPUS_PER_TASK"
+
+PRJFILE=/projects/ng_inletcfd/starccm_slurm/rocket_project.dmprj
+
+STAR_PATH=/apps/common/software/STAR-CCM+/18.02.008-R8/STAR-CCM+18.02.008-R8/star/bin/
+STARCCMP=$STAR_PATH/starccm+
+
+# Define license settings below
+SIMOPTS='-power'
+DMPLICO='-dmnoshare'
+
+$STARCCMP -batch run ${DMPLICO} -passtodesign ${SIMOPTS} -dmproject ${PRJFILE}

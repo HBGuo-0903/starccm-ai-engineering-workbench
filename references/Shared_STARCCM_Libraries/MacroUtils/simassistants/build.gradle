@@ -1,0 +1,37 @@
+/*******************************************************************************
+ *
+ * Simulation Assistants common build.gradle script
+ *
+ *******************************************************************************/
+
+
+subprojects {
+
+    configurations {
+        resolvableApi.extendsFrom(api)
+        resolvableApi.canBeResolved = true
+    }
+
+    dependencies {
+        api project(':macroutils')
+    }
+
+    jar {
+
+        exclude '*.jar'
+
+        from {
+            configurations.resolvableApi.collect {
+                it.name.contains("${jarBaseName}") ? zipTree(it) : it
+            }
+        }
+
+        into 'html', {
+            from 'html'
+        }
+
+        archiveBaseName = "${project.name}_assistant_${buildVersion}_build_${buildDate}"
+
+    }
+
+}

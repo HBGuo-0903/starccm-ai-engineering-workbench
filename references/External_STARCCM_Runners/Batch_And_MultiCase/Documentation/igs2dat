@@ -1,0 +1,10 @@
+#!/bin/bash
+# IGES file point extractor
+#  Warning!  points on multiple lines are not extracted properly!
+OUTFILE=${1%.igs}.dat
+grep '^116' $1 | cut -d \, -f2,3,4 > $OUTFILE
+echo Extraction complete.
+echo
+echo 'Warning!  If there were points on multiple lines they were not extracted properly!'
+echo "   Check the output file: $OUTFILE"
+echo

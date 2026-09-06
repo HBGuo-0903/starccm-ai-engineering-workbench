@@ -1,0 +1,26 @@
+# Node and build artifacts
+node_modules/
+**/node_modules/
+.gradle/
+**/.gradle/
+bin/
+**/bin/
+build/
+**/build/
+dist/
+**/dist/
+target/
+**/target/
+out/
+**/out/
+__pycache__/
+
+# Local AI/runtime artifacts
+runtime_*/
+**/runtime_*/
+.env
+.env.*
+*.log
+
+# Local STAR-CCM+ generated backups
+*.sim~

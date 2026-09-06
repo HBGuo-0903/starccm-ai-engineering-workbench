@@ -1,0 +1,132 @@
+#!/usr/bin/perl
+#Routine for determining stagnation point from
+#ins2D cp files
+
+#gathers input from script file
+use Cwd;
+use Shell qw(echo pwd);
+
+@CaG = @ARGV;
+if(scalar(@ARGV) == 1){
+foreach $fid (@CaG){
+    open(WORKING, "$fid") || die "Couldn't open $CaG! $! \n";
+
+    $alpha_trig = 0;
+    $grid_trig = 0;
+    
+    while(<WORKING>){
+        next if $_ =~ /^\s*$/;  #skips blank lines
+        if($_ =~ m/^ALPHAS/){
+            $alpha_trig = 1;
+            $grid_trig = 0;
+            next;
+        }
+    
+        if($_ =~ m/^GRIDS/){
+            $grid_trig = 1;
+            $alpha_trig = 0;
+            next;
+        }
+
+        if($alpha_trig == 1 && $grid_trig == 0){
+            chomp($_);
+            push(@alphas, $_); 
+        }
+        elsif($grid_trig ==1 && $alpha_trig ==0){
+            chomp($_);
+            push(@grids, $_);
+        }
+        else{
+        }
+
+    }
+
+    close(WORKING);
+}
+
+
+# Opens directories of the various alphas and get stagnation point and coordinates from the 
+# Cp files
+
+@Cp = [];
+@xc = [];
+@yc = [];
+$minCp= 1000;
+$base_dir = getcwd();
+for($i = 0; $i < scalar(@alphas); $i++){
+    $minCp= 1000;
+    $header_trig = 0;
+
+        if ($alphas[$i] < 0){
+            $d_alpha = abs($alphas[$i]);
+            $d_alpha = "n".$d_alpha;
+        }
+        else{
+            $d_alpha = abs($alphas[$i]);
+        }
+        $directory[$i] = "a".$d_alpha;
+    chdir $directory[$i];
+    $cpfiles = `ls cp*`;
+    @cpfArray = split(" ",$cpfiles);
+for($j = 0; $j < scalar(@cpfArray); $j++){
+        open(OLD, "<$cpfArray[$j]") or die "Failed to open $cpfArray[$j] in $directory[$i]! $!";
+
+ 
+             while(<OLD>){
+                next if /^#/;   #skips comments
+        @array = split(" ",$_);
+                if(scalar(@array)< 3){
+            next;
+                }
+                elsif(scalar(@array) > 3){
+                   next;
+                }
+                else{
+           if(abs($array[2]) < $minCp){
+           $minCp = abs($array[2]);
+           #print("$minCp\n");
+           $Cp[$i][$j] = $array[2];
+           $xc[$i][$j] = $array[0];
+           $yc[$i][$j] = $array[1]; 
+            }
+           else{
+            }
+                }
+ 
+            } #end of while
+    close(OLD);
+    print("$minCp \n");
+    $minCp= 1000;
+}   #end of j loop for different cp files
+        
+        
+        chdir $base_dir;
+ 
+
+
+}   #end of $i loop
+
+open(NEW, ">CpStag.pnt") or die "Can't open new:$!";
+@header=("File", "Alpha", "Cp", "x/c", "y/c");
+$head_format =("%11s% 6s% 16s% 16s% 16s\n");
+
+
+$formatline = ("%11s% 6d% 16.8E% 16.8E% 16.8E");
+
+for ($j = 0; $j< scalar(@cpfArray); $j++){
+    printf(NEW ($head_format, @header));
+for ($i = 0;$i < scalar(@alphas); $i++){
+    @parray=($cpfArray[$j],$alphas[$i], $Cp[$i][$j], $xc[$i][$j], $yc[$i][$j]);
+    printf(NEW ($formatline,@parray));
+    printf(NEW "\n");
+    } #end of i loop
+    
+}   #end of j loop
+close(NEW);
+}   #end of primary if statement
+else{   print("*******    PROGRAM TERMINATED    ********\n");
+    print("To use this program you must use the input file that you\n");
+    print("used to execute the runins2d script! \n");
+    print("ie. getStagPointINS2D runins2d.in \n");
+    die;
+} 

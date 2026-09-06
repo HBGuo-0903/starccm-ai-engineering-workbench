@@ -1,0 +1,264 @@
+#!/usr/bin/perl -w
+#Perl routine for averaging the log file output values generated in each directory
+#and then compiling them in a single file.
+#
+#IR accepts an input file (*.in) for input argument which directs the program to look
+# through various folders for the log files to average each alpha and beta condition.
+#
+#Rev-A will accept a (*.in) file as before or a (*.log) as a single log file that 
+# as an argument.
+#
+#Aeronautical Testing Service, Inc.
+#IR 16 MAR 2010 Paul Chritensen
+#Rev-A 15 September 2010 Paul Christensen - added ability to read *.in or *.log files to make
+#                                           tabulated averaged data.
+
+# Module declarations #
+#=========================================
+use File::Copy; #uses the file copy module
+use Cwd;
+
+@INFILE = @ARGV;
+$nameVector = $ARGV[0];
+@nameSplit = split(/[.]/,$nameVector);
+
+print ("\n");
+print ("How how many steps from the end would you like to start averaging the data?  ");
+$sampleSize = <STDIN>;
+chomp($sampleSize);
+
+
+if ($nameSplit[1] =~ m/^in/o){  
+
+foreach $fid (@INFILE){
+    open(WORKING, "$fid") || die "Couldn't open multi Star input file! $!\n";
+    $alpha_trig = 0;
+    $grid_trig = 0;           
+    
+    while(<WORKING>){
+        next if $_ =~ /^#/;     #skips any line that starts with a # (comment line)
+        next if $_ =~ /^\s*$/;   #skips blank lines
+ 
+        if($_ =~ m/^ALPHAS/o){
+            $alpha_trig = 1;
+            $grid_trig = 0;
+            next;
+        }
+
+        if($_ =~ m/^GRIDS/o){
+            $grid_trig = 1;
+            $alpha_trig = 0;
+            next;
+        }
+
+        if($alpha_trig == 1 && $grid_trig == 0){
+            chomp($_);
+            @split_line = split(" ",$_);
+            push(@alphas, $split_line[0]);
+            push(@betas,  $split_line[1]); 
+        }
+        elsif($grid_trig ==1 && $alpha_trig ==0){
+            chomp($_);
+            #push(@grids, $_);
+        }
+        else{
+        }
+    }
+
+    close(WORKING);
+}
+
+# Creates the directories for the different alpha and beta combinations and copies the files to 
+# those directories. 
+$base_dir = getcwd();
+
+
+
+for($i = 0; $i < scalar(@alphas); $i++){
+    
+    $alpha_trig = 0;
+    if ($alphas[$i] < 0){
+        $d_alpha = abs($alphas[$i]);
+        $d_alpha = "n".$d_alpha;
+        }
+    else{
+        $d_alpha = abs($alphas[$i]);
+        }
+        
+    if ($betas[$i] < 0){
+        $d_beta = abs($betas[$i]);
+        $d_beta = "n".$d_beta;
+    }
+    else{
+        $d_beta = abs($betas[$i]);
+    }
+    $directory[$i] = "a".$d_alpha."b".$d_beta;
+    #print("\n");
+	$HeaderCntr = 0;
+	$lineCntr = 0;
+
+	chdir $directory[$i] or die "Failed to change directory to $directory[$i]! $!";
+	$logFileName = `ls *.log`;
+
+	#subroutine to read the log file and return log file output.
+	@subReturn = &logFileRead($logFileName);
+	$lineCntr = ${$subReturn[0]};
+	$HeaderCntr = ${$subReturn[1]};
+	@logColumns = @{$subReturn[2]};
+	@caseLogOut = @{$subReturn[3]};
+	@name_array = @{$subReturn[4]};	
+
+	$deltaArray = ($lineCntr-$sampleSize);
+
+	for($j=0; $j<scalar(@logColumns); $j++){
+		$colSum = 0;
+		if($deltaArray < 0){
+			$colSum = 0;
+		}
+		else{
+			for($m=0; $m<$sampleSize; $m++){
+				$colSum = $colSum + $caseLogOut[($deltaArray + $m)][$j];
+			} #end of $m loop
+		}
+		$caseAvg[$i][$j] = $colSum/$sampleSize;
+	}#end of $j loop
+	chdir $base_dir;
+}	#end of $i loop	
+
+$p_format = ("% 1.7E");
+open(OUTLOG, ">BatchSum.avg") or die "\nFailed to open final Batch Summary file! $!";
+printf(OUTLOG ("% 14s", "Alpha"));
+printf(OUTLOG ",");
+printf(OUTLOG ("% 14s", "Beta"));
+printf(OUTLOG ",");
+for($i=1; $i < scalar(@name_array); $i++){
+	printf(OUTLOG ("% 14s", $name_array[$i]));
+	printf(OUTLOG ",");
+}
+	printf(OUTLOG "\n");
+for($j=0; $j < scalar(@alphas); $j++){
+	printf(OUTLOG ($p_format, $alphas[$j]));
+	printf(OUTLOG ",");
+	printf(OUTLOG ($p_format, $betas[$j]));
+	printf(OUTLOG ",");
+	for ($k=1; $k<scalar(@logColumns); $k++){
+
+		printf(OUTLOG ($p_format, $caseAvg[$j][$k]));
+		printf(OUTLOG ",");
+	}
+	printf(OUTLOG "\n");
+}
+
+close(OUTLOG);
+
+}	#end of section that for *.in files
+else{
+	$i = 0;
+	$logFileName = $nameVector;
+	#subroutine to read the log file and return log file output.
+	@subReturn = &logFileRead($logFileName);
+	$lineCntr = ${$subReturn[0]};
+	$HeaderCntr = ${$subReturn[1]};
+	@logColumns = @{$subReturn[2]};
+	@caseLogOut = @{$subReturn[3]};
+	@name_array = @{$subReturn[4]};
+
+	$deltaArray = ($lineCntr-$sampleSize);
+
+	for($j=0; $j<scalar(@logColumns); $j++){
+		$colSum = 0;
+		if($deltaArray < 0){
+			$colSum = 0;
+		}
+		else{
+			for($m=0; $m<$sampleSize; $m++){
+				$colSum = $colSum + $caseLogOut[($deltaArray + $m)][$j];
+			} #end of $m loop
+		}
+		$caseAvg[$i][$j] = $colSum/$sampleSize;
+	}#end of $j loop
+
+$p_format = ("% 1.7E");
+open(OUTLOG, ">BatchSum.avg") or die "\nFailed to open final Batch Summary file! $!";
+
+for($i=1; $i < scalar(@name_array); $i++){
+	printf(OUTLOG ("% 14s",$name_array[$i]));
+	printf(OUTLOG ",");
+}
+	printf(OUTLOG "\n");
+
+	for ($k=1; $k<scalar(@logColumns); $k++){
+		printf(OUTLOG ($p_format, $caseAvg[0][$k]));
+		printf(OUTLOG ",");
+	}
+	printf(OUTLOG "\n");
+
+
+close(OUTLOG);
+
+}	#end of else section for *.log files
+
+
+
+
+
+sub logFileRead{
+			# argument (@_) passed into subroutine is the logfile name.		
+my $logFName=();
+my @caseLOut=();
+my $HeaderCtr=();
+my @nm_array=();
+my @lgColumns=();
+my $lneCtr=();
+my @retlist=();
+	
+
+	$HeaderCtr = 0;
+	$lneCtr = 0;
+	$logFName = $_[0];
+	chomp($logFName);
+	@caseLOut = ();
+    	open(NEW, "<$logFName") or die "Failed to open log file $logFName! $!"; 
+	while(<NEW>){
+		next if $_ =~ /^\s*$/;   #skips blank lines
+		next if $_ =~ m/Level/;	 #skips preconditioning lines
+
+		if ($HeaderCtr == 0  && $_ =~ m/Iteration/o) { #perl subroutine return reference
+			chomp($_);
+			@nm_array = split /\s{2,}/, $_;	#allows to split on two or more white spaces
+			$HeaderCtr++;
+			next;
+
+		}
+		elsif( $_ =~ m/Stopping/o){
+			last;
+		}
+		elsif($HeaderCtr > 0){
+			if ($_ =~ m/Iteration/o){
+				$HeaderCtr++;
+				next;
+			}
+			
+			else{
+				chomp($_);
+				@lgColumns = split(" ",$_);
+				
+				if(scalar(@lgColumns) != scalar(@nm_array)){
+					print("$logFName has error at line $lneCtr \n");
+					print("The number of column headers is not the same as the data columns. Skipping this line!\n");
+					next;
+				}
+				for($k=0; $k<scalar(@lgColumns); $k++){
+					$caseLogOut[$lneCtr][$k] = $lgColumns[$k];
+				} #end of $k loop
+				$lneCtr++;	
+			}
+		}
+		else{
+			next;
+		}
+	}	 
+	close(NEW);
+	@retlist=(\$lneCtr, \$HeaderCtr, \@lgColumns, \@caseLogOut, \@nm_array);
+	return @retlist;
+}	#end of subroutine.

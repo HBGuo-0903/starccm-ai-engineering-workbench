@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.tsv -text
+*.json -text
+*.md text eol=lf

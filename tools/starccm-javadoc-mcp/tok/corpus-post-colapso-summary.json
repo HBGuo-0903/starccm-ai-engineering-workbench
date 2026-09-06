@@ -1,0 +1,43 @@
+{
+  "generado": "2026-08-07T12:04:11.124Z",
+  "starccm_version": "2606 Build 21.04.007",
+  "node": "v20.14.0",
+  "colapso": "a677897",
+  "barrido_ms": 102117,
+  "clases": 23498,
+  "descartados": 25367,
+  "errores": 0,
+  "umbrales": [
+    {
+      "tope": 20000,
+      "clases": 144
+    },
+    {
+      "tope": 30000,
+      "clases": 33
+    },
+    {
+      "tope": 40000,
+      "clases": 17
+    },
+    {
+      "tope": 50000,
+      "clases": 11
+    },
+    {
+      "tope": 60000,
+      "clases": 8
+    },
+    {
+      "tope": 80000,
+      "clases": 7
+    },
+    {
+      "tope": 100000,
+      "clases": 5
+    }
+  ],
+  "chars_total": 134600475,
+  "chars_total_pre": 144454266,
+  "cruzan_20000_a_la_baja": 52
+}

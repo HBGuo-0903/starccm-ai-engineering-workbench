@@ -1,0 +1,21 @@
+#!/bin/bash                     
+#SBATCH -J DM_star --account=ng_inletcfd 
+#SBATCH --partition=normal_q --nodes=1 --ntasks-per-node=4 --cpus-per-task=4 --time=0-00:30:00
+#SBATCH --output="/projects/ng_inletcfd/log/slurm-DM-%j.out"
+
+STAR_PATH=/apps/common/software/STAR-CCM+/18.02.008-R8/STAR-CCM+18.02.008-R8/star/bin/
+
+STARCCMP=$STAR_PATH/starccm+
+
+echo "Working directory: $PWD"
+
+DMRUNFILE=$(ls *.mdxin 2>/dev/null | head -1)
+echo "Found dmrunfile: $DMRUNFILE"
+
+# Read the exact options DM prepared for this design point
+EXECOPTS=$(cat dm_design_execute_options.txt)
+echo "Execute options: $EXECOPTS"
+
+$STARCCMP -bs slurm -np $SLURM_NTASKS -rsh /usr/bin/ssh $EXECOPTS
+
+echo "Job script complete."

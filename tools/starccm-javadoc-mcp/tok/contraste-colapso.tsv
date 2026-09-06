@@ -1,0 +1,26 @@
+CONTROL NEGATIVO (search_api): identicas al caracter 36 de 36
+
+get_doc por consulta (antes = despues-50000, despues = colapso-50000)
+qid	clase	antes	despues	delta	pct	trunc_antes	trunc_despues
+Q01	FieldFunctionManager	16176	15187	-989	-6.1%	false	false
+Q02	PartManager	50016	50016	0	0.0%	true	true
+Q03	AnalysisReport	10817	10065	-752	-7.0%	false	false
+Q04	AreaAverageReport	7980	7565	-415	-5.2%	false	false
+Q05	Boundary	13832	12695	-1137	-8.2%	false	false
+Q05	WallBoundary	4061	3829	-232	-5.7%	false	false
+Q06	VectorReport	10398	9668	-730	-7.0%	false	false
+Q07	TableManager	10787	10038	-749	-6.9%	false	false
+Q08	Simulation	29981	26898	-3083	-10.3%	false	false
+Q09	Report	18573	16953	-1620	-8.7%	false	false
+Q10	GlobalParameterManager	10117	9499	-618	-6.1%	false	false
+Q10	ClientServerObjectManager	15360	13871	-1489	-9.7%	false	false
+Q11	Continuum	15811	14456	-1355	-8.6%	false	false
+Q12	ThresholdPart	11120	10164	-956	-8.6%	false	false
+Q13	PlaneProbePart	10959	10064	-895	-8.2%	false	false
+Q14	Continuum	15811	14456	-1355	-8.6%	false	false
+Q14	AutoMeshOperation	14612	13401	-1211	-8.3%	false	false
+Q15	UserFieldFunction	10646	9889	-757	-7.1%	false	false
+
+No truncadas (17): recorrido de -10.3% a -5.2%
+Q02 (tope manda): 50016 -> 50016, truncada true -> true
+chars_get_doc total (denominador: las 18 llamadas get_doc del plan): 277057 -> 258714 (-6.6%)
