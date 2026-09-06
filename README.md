@@ -1,191 +1,163 @@
-# STAR-CCM+ Java Development
+# STAR-CCM+ AI Engineering Workbench
 
-> 让 AI 真正“查得到 API、看得懂案例、写得出宏、理得清资料”。
+> 官方文档 MCP + 已验证案例 + AI 辅助生成 + 知识库持续演进
 
 ![STAR-CCM+ AI and MCP workflow](assets/starccm-ai-mcp-workflow.png)
 
-这是一个面向 STAR-CCM+ Java 二次开发的 AI 原生参考仓库。它把三类能力串成一条可复用的链路：
-
-**官方 Javadoc MCP + 已验证案例 → AI 生成 → 知识库运维整理**
-
-它不只是一个 Java 文件收藏夹，也不把 Siemens 的官方文档复制进 GitHub。AI 在需要写宏时，可以查询本机官方 API、参考已经验证过的代码，再把生成结果放到独立的运行目录；知识库维护 Skill 则负责持续检查、分类、去重和刷新索引。
-
-更重要的是，这套思想并不局限于 STAR-CCM+。任何有官方 API、示例代码、运行环境和持续积累需求的二次开发项目，都可以复用同一套方法：把权威文档接入 MCP，把验证过的实现沉淀为案例，让 AI 负责检索与生成，再用自动化规则保持知识库干净。
-
-## 整个仓库的工作闭环
-
-下面的 Mermaid 图描述的是从一次开发需求到知识库长期演进的完整过程：
-
-```mermaid
-flowchart TD
-    A[用户提出二次开发需求] --> B[AI 识别目标功能与运行边界]
-    B --> C[读取 references/STARCCM_References_Index.csv]
-    C --> D{判断需要哪类参考资料}
-    D --> L[Shared Libraries<br/>公共库封装]
-    D --> K[Basic Knowledge<br/>原生 API 基础知识]
-    D --> E[Case Library<br/>软件内运行的功能案例]
-    D --> P[Project Library<br/>外部完整运行项目]
-    L --> R[深入读取对应 AGENTS.md、README.md 和代码]
-    K --> R
-    E --> R
-    P --> R
-    R --> M[调用官方 Javadoc MCP]
-    M --> S[search_api 查找类、方法和关键词]
-    S --> T[get_doc 读取签名、参数、返回值和说明]
-    T --> V[AI 对照官方 API 与已验证案例]
-    V --> G[生成 STAR-CCM+ Java 宏或外部运行项目]
-    G --> O[写入 Desktop/runtime_yyyyMMdd]
-    O --> Q[在匹配版本的 STAR-CCM+ 中编译与运行]
-    Q --> X{验证是否通过}
-    X -->|否| Y[记录错误、版本、输入和日志]
-    Y --> M
-    X -->|是| Z[保留可复用脚本、输入、输出和验证说明]
-    Z --> N[提交到对应 reference 分类]
-    N --> H[knowledge maintainer 检查结构、重复、历史版本和文档]
-    H --> I[刷新 STARCCM_References_Index.csv]
-    I --> C
-```
-
-这意味着仓库不是“资料放进去就结束”，而是一个可以不断变强的闭环：用户使用 Skill 越多，经过 STAR-CCM+ 实际验证的脚本越多，就越可以继续沉淀回 `references/`，成为下一次 AI 生成时更可靠的参考。
-
-## 为什么要这样组织？
-
-STAR-CCM+ Java 开发最容易遇到的不是“不会写一行 Java”，而是：
-
-- API 名称、继承关系和参数经常记错；
-- GitHub 案例可能是半成品、旧版本、测试代码，不能直接当作正确答案；
-- 案例越积越多以后，目录、文件名、历史版本和重复代码会让 AI 找错资料。
-
-本仓库的目标是让 AI 按下面的路径工作：
+这是一个面向 STAR-CCM+ Java 二次开发的 AI 原生工作台。它把官方 Javadoc、可复用公共库、基础知识、软件内功能案例和外部完整项目组织成一个能够持续积累的开发闭环。
 
 ```text
-本机官方 Javadoc
-        │
-        ▼
-starccm-javadoc-mcp ── search_api / get_doc ──► 准确的 API、签名和说明
-        │                                             │
-        └──────────────────────┬──────────────────────┘
-                               ▼
-                 已验证的 STAR-CCM+ 案例与参考索引
-                               │
-                               ▼
-                    AI 生成宏 / 外部运行项目
-                               │
-                               ▼
-                 knowledge maintainer 持续整理知识库
+官方 Javadoc MCP + 已验证案例
+              ↓
+          AI 辅助生成
+              ↓
+       STAR-CCM+ 实际验证
+              ↓
+       知识库自动整理与索引
+              ↓
+     验证成果成为下一次开发的参考
 ```
 
-## 四类参考资料
+## 一套可以迁移到任意二次开发项目的方法
 
-为了让人和 AI 都能快速判断资料用途，我们把参考资料明确分为四类：
-
-### 1. 参考公共库
-
-`Shared_STARCCM_Libraries/` 存放对 STAR-CCM+ 原生 API 的公共封装。它们把重复、繁琐或容易写错的底层调用整理成更容易复用的库，例如 MacroUtils。公共库不是某一个具体工况的完整案例，而是多个宏和项目都可以调用的基础设施。
-
-### 2. 基础知识库
-
-`Basic_Syntax/` 用来介绍 Java 和 STAR-CCM+ 原生 API 的基础知识。这里只保留适合单独学习的知识点；如果一段代码只是非常简单的语法示例，就不把它包装成复杂案例。
-
-### 3. 案例库
-
-`Standalone_STARCCM_Functions/` 存放可以在 STAR-CCM+ 内单独运行、并且能够完成某个明确功能的宏案例。每个案例应当尽量对应单一功能，并说明输入、输出、适用条件和足够详细的 Mermaid 执行流程。
-
-### 4. 项目库
-
-`External_STARCCM_Runners/` 存放从外部完整调用 STAR-CCM+ 的项目，例如启动软件、传入 Simulation 或其他输入、执行多个步骤、保存结果和处理日志。外部项目应当整体保留，不能把同一项目拆成零散 Java 文件后混入 STAR-CCM+ 内部宏案例。
+STAR-CCM+ 是本仓库的第一个工程示例，但这里真正沉淀的是一套通用的二次开发工作流。只要一个软件或平台具备官方帮助文档、API、示例代码和可执行的验证环境，就可以采用同样的方法：
 
 ```mermaid
 flowchart LR
-    A[STAR-CCM+ 原生 API] --> B[参考公共库<br/>Shared Libraries]
+    A[官方帮助文档] --> B[MCP 文档接口]
+    C[经过验证的案例] --> D[AI 检索与生成]
+    B --> D
+    D --> E[目标软件中的实际验证]
+    E --> F[整理为结构化知识库]
+    F --> A
+    F --> C
+    F --> D
+```
+
+这套模式可以迁移到：
+
+- ANSYS、Fluent、Abaqus、SpaceClaim 等工程软件；
+- CAD、CAE、EDA 和仿真平台的插件开发；
+- 企业内部 SDK、业务 API 和自动化平台；
+- 任何需要长期维护示例代码、调用规范和运行流程的二次开发项目。
+
+迁移时只需要替换三项内容：权威文档来源、目标软件的验证环境、以及与项目对应的参考资料分类。MCP、AI Skill、验证案例和知识库维护的整体思想保持不变。
+
+## 为什么知识库维护是 AI 工作流的一部分
+
+在 AI 时代，知识库不仅用于保存文件，更承担着“为 AI 提供可检索上下文”的职责。目录名称、文件组织、案例摘要、输入输出和验证状态，都会影响 AI 对资料的选择。
+
+因此，知识库需要持续保持清晰的语义边界：每份资料说明它解决的功能，每个案例对应明确的使用场景，每个项目保留完整的执行关系，验证过的结果可以被下一轮开发复用。
+
+人类可以通过经验补全目录中的信息；AI 更依赖结构化索引和明确文档来建立判断。长期维护知识库，就是在持续提升 AI 检索、理解、生成和复用代码的准确性。
+
+## 四类参考资料
+
+### 1. 参考公共库
+
+目录：`references/Shared_STARCCM_Libraries/`
+
+这里存放对 STAR-CCM+ 原生 API 的公共封装。公共库把重复、繁琐或容易出错的底层调用整理成可被多个宏和项目复用的组件，例如 MacroUtils。
+
+### 2. 基础知识库
+
+目录：`references/Basic_Syntax/`
+
+这里介绍 Java 和 STAR-CCM+ 原生 API 的基本用法，包括宏结构、对象访问、物理模型、网格、报告、场景和求解控制等知识点。基础知识帮助用户和 AI 建立稳定的 API 使用基础。
+
+### 3. 案例库
+
+目录：`references/Standalone_STARCCM_Functions/`
+
+这里存放可以在 STAR-CCM+ 内部运行，并完成一个明确功能的宏案例。案例配套功能总结、输入、输出、适用条件和详细 Mermaid 工作流，便于 AI 依据实际用途选择参考。
+
+### 4. 项目库
+
+目录：`references/External_STARCCM_Runners/`
+
+这里存放从外部完整调用 STAR-CCM+ 的项目，包括启动软件、传入 Simulation 或其他输入、执行多个步骤、保存结果以及处理日志。项目库保留完整的外部执行关系，适合自动化和批量计算场景。
+
+```mermaid
+flowchart TD
+    A[STAR-CCM+ 原生 API]
+    A --> B[参考公共库<br/>Shared Libraries]
     A --> C[基础知识库<br/>Basic Knowledge]
     B --> D[案例库<br/>Case Library]
     C --> D
     D --> E[项目库<br/>Project Library]
     E --> F[经过验证的可复用实现]
-    F --> G[下一次 AI 生成的参考资料]
+    F --> G[下一次 AI 开发任务]
+    G --> A
 ```
 
-## 三个核心能力
+## MCP 如何参与脚本生成
 
-### 1. 用 MCP 读取官方帮助文档
+`tools/starccm-javadoc-mcp` 将用户本机 STAR-CCM+ 安装目录中的官方 Javadoc 提供给 AI。生成脚本时，AI 可以：
 
-`tools/starccm-javadoc-mcp` 把本机 STAR-CCM+ 安装目录中的官方 Javadoc 暴露给 AI。AI 可以先用 `search_api` 找类、方法或关键词，再用 `get_doc` 读取正式文档，从而核对：
+1. 通过 `search_api` 查找类、方法和关键词；
+2. 通过 `get_doc` 读取完整签名、参数、返回值和官方说明；
+3. 读取 `references/STARCCM_References_Index.csv` 选择相关资料；
+4. 深入阅读对应的 `AGENTS.md`、`README.md`、Java 文件和输入文件；
+5. 对照官方 API 和已验证案例生成宏或外部运行项目；
+6. 把生成结果写入桌面的 `runtime_yyyyMMdd` 目录，进行实际编译和运行验证。
 
-- 类和接口是否真实存在；
-- 方法的完整签名、参数和返回值；
-- 继承关系以及可用的 STAR-CCM+ 对象；
-- 版本差异、弃用信息和调用限制。
+官方 Javadoc 保留在用户自己的 STAR-CCM+ 安装中，不随本仓库分发。
 
-这样，AI 不需要凭记忆猜 API，也不会把网上某个版本的示例直接当成当前版本的官方事实。官方 Javadoc 仍然保留在用户自己的 STAR-CCM+ 安装中，不随本仓库分发。
+## AI Skills
 
-### 2. 参考已经验证过的案例
+### `starccm-script-generator`
 
-`references/` 是面向 AI 检索的案例知识库，而不是按 GitHub 仓库简单堆放的备份。它使用上面的四类模型：
-
-- `Shared_STARCCM_Libraries/`：原生 API 的公共封装；
-- `Basic_Syntax/`：原生 API 和 Java 基础知识；
-- `Standalone_STARCCM_Functions/`：在 STAR-CCM+ 内运行的单功能案例；
-- `External_STARCCM_Runners/`：从外部完整调用 STAR-CCM+ 的项目。
-
-AI 每次先读取 `references/STARCCM_References_Index.csv`，再按任务深入读取相关目录中的 `AGENTS.md`、`README.md`、Java 文件和输入文件。索引让 AI 先知道“有哪些资料”，案例文档再说明“这些资料为什么可信、如何运行、输入输出是什么”。
-
-### 3. AI 辅助生成，并持续自动整理
-
-安装 `starccm-script-generator` 后，可以直接让 AI：
-
-- 结合官方 Javadoc MCP 查询正确 API；
-- 从索引中选择最接近的已验证案例；
-- 生成带注释的 STAR-CCM+ 宏或外部运行项目；
-- 把脚本放进桌面的 `runtime_yyyyMMdd` 目录，便于编译、运行和回溯。
-
-安装 `starccm-knowledge-maintainer` 后，可以让 AI 检查知识库是否出现：
-
-- 同一项目的历史版本和重复文件；
-- 本应归为基础语法、却被包装成完整案例的简单代码；
-- 一个案例目录中混入多个独立功能；
-- 外部集群、FSI、Co-Simulation 等不应放在独立宏分类中的内容；
-- 缺少功能总结、输入、输出和详细 Mermaid 工作流的案例说明；
-- 索引路径失效、空目录和无关的图片或构建产物。
-
-这正是 AI 时代知识库运维的关键：人类通常还能凭经验读懂一个凌乱的目录，但 AI 会把目录结构、文件命名和元数据当成检索线索。知识库一旦变脏、变乱，AI 就可能选错案例、重复生成代码，甚至把测试脚本当成生产流程。因此，长期整理不是“锦上添花”，而是让 AI 稳定工作的基础设施。
-
-## 目录结构
+用于生成 STAR-CCM+ Java 宏和外部运行项目。它读取参考索引，选择与目标功能最接近的案例，再结合官方 Javadoc MCP 生成带有注释和使用说明的代码。生成结果默认位于：
 
 ```text
-starccm-java-development/
-├─ assets/
-│  └─ starccm-ai-mcp-workflow.png
-├─ references/
-│  ├─ Basic_Syntax/
-│  ├─ Standalone_STARCCM_Functions/
-│  ├─ External_STARCCM_Runners/
-│  ├─ Shared_STARCCM_Libraries/
-│  ├─ AGENTS.md
-│  └─ STARCCM_References_Index.csv
-├─ tools/
-│  ├─ skills/
-│  │  ├─ starccm-script-generator/
-│  │  └─ starccm-knowledge-maintainer/
-│  └─ starccm-javadoc-mcp/
-├─ AGENTS.md
+Desktop/runtime_yyyyMMdd/
+├─ java/
+├─ inputs/
+├─ logs/
 └─ README.md
 ```
 
+### `starccm-knowledge-maintainer`
+
+用于维护参考知识库的结构、语义和索引。它可以检查案例功能边界、项目完整性、重复实现、历史版本、输入输出说明、Mermaid 工作流和索引路径，并在维护任务结束时刷新 `STARCCM_References_Index.csv`。
+
+## 整个仓库的工作流程
+
+```mermaid
+flowchart TD
+    A[提出二次开发需求] --> B[AI 读取参考索引]
+    B --> C[选择公共库 基础知识 案例库 或 项目库]
+    C --> D[读取对应文档和代码]
+    D --> E[调用官方 Javadoc MCP]
+    E --> F[search_api 查找 API]
+    F --> G[get_doc 核对 API 详情]
+    G --> H[AI 组合官方 API 与已验证实现]
+    H --> I[生成宏或外部运行项目]
+    I --> J[写入 runtime_yyyyMMdd]
+    J --> K[在目标软件中编译和运行]
+    K --> L{验证完成}
+    L -->|继续优化| E
+    L -->|形成可复用成果| M[保存代码 输入 输出 日志和说明]
+    M --> N[加入对应 reference 分类]
+    N --> O[knowledge maintainer 整理知识库]
+    O --> P[刷新参考索引]
+    P --> B
+```
+
+随着用户使用 Skill 的次数增加，经过真实环境验证的脚本、输入文件、运行日志和解决方案可以持续沉淀回 `references/`。这样，知识库会从参考资料集合逐渐成长为面向 AI 的项目经验库。
+
 ## 快速开始
 
-### 1. 获取仓库
+### 获取仓库
 
 需要 Windows PowerShell、Node.js 18+、已安装并授权的 STAR-CCM+，以及支持本地 stdio MCP server 的 AI 客户端。
 
 ```powershell
-git clone https://github.com/<your-account>/starccm-java-development.git
-Set-Location .\starccm-java-development
+git clone https://github.com/HBGuo-0903/starccm-ai-engineering-workbench.git
+Set-Location .\starccm-ai-engineering-workbench
 ```
 
-### 2. 安装 AI Skills
-
-把仓库中的两个 Skill 安装到当前用户的 Codex Skill 目录：
+### 安装 Skills
 
 ```powershell
 $RepoRoot = (Resolve-Path ".").Path
@@ -195,96 +167,43 @@ Copy-Item -LiteralPath (Join-Path $RepoRoot 'tools\skills\starccm-script-generat
 Copy-Item -LiteralPath (Join-Path $RepoRoot 'tools\skills\starccm-knowledge-maintainer') -Destination $CodexSkillRoot -Recurse -Force
 ```
 
-安装后可以对 AI 这样说：
-
-```text
-使用 starccm-script-generator，先查官方 Javadoc，再参考已验证案例，生成一个创建圆柱体并设置网格的宏。
-
-使用 starccm-knowledge-maintainer，检查 references 中与场景和可视化相关的案例，识别重复、空目录和多功能混杂问题。
-```
-
-### 3. 连接官方 Javadoc MCP
-
-先安装 MCP 项目依赖：
+### 配置并连接 MCP
 
 ```powershell
 $RepoRoot = (Resolve-Path ".").Path
 Set-Location (Join-Path $RepoRoot 'tools\starccm-javadoc-mcp')
 npm install
-```
-
-设置本机官方 Javadoc 根目录。它应当是包含 `index.html`、`type-search-index.js` 和 `member-search-index.js` 的目录：
-
-```powershell
 $env:STARCCM_DOC = 'C:\Path\To\STAR-CCM+\doc\client\html'
 ```
 
-以 Claude Code 为例注册 MCP：
+`STARCCM_DOC` 应指向包含 `index.html`、`type-search-index.js` 和 `member-search-index.js` 的官方 Javadoc 目录。
+
+以 Claude Code 为例：
 
 ```powershell
 $RepoRoot = (Resolve-Path "..\..").Path
 $McpRoot = Join-Path $RepoRoot 'tools\starccm-javadoc-mcp'
-
 claude mcp add --scope user starccm `
   -- cmd /c node (Join-Path $McpRoot 'server.mjs') $env:STARCCM_DOC
-
 claude mcp list
 ```
 
-其他 AI 客户端的配置格式可能不同，但核心仍然是：启动 `tools/starccm-javadoc-mcp/server.mjs`，并把本机 Javadoc 根目录作为参数传入。连接后可用下面的请求测试：
+## 参考索引
 
-```text
-使用 search_api 查找 RegionManager，再用 get_doc 读取官方文档，并说明创建一个新 Region 时应调用哪些 API。
-```
-
-### 4. 让 AI 生成可运行结果
-
-推荐让 AI 明确遵循这条链路：
-
-```text
-提出功能需求
-  ↓
-读取 STARCCM_References_Index.csv
-  ↓
-深入阅读相关 AGENTS.md、README.md、Java 和输入文件
-  ↓
-通过 MCP 查询官方 API
-  ↓
-对照已验证案例生成代码
-  ↓
-写入 Desktop/runtime_yyyyMMdd/
-  ↓
-在匹配版本的 STAR-CCM+ 中编译和运行验证
-```
-
-生成目录默认位于当前用户桌面，例如：
-
-```text
-Desktop/runtime_20260906/
-├─ java/
-├─ inputs/
-├─ logs/
-└─ README.md
-```
-
-运行结果、日志和临时输入留在 `runtime_yyyyMMdd`，不会污染参考知识库。
-
-## 索引与知识库维护
-
-`references/STARCCM_References_Index.csv` 是 AI 检索入口。正常生成脚本时只读取索引；只有 `starccm-knowledge-maintainer` 负责调用索引生成脚本：
+`references/STARCCM_References_Index.csv` 是 AI 进入知识库的第一入口。普通脚本生成任务只读取索引；`starccm-knowledge-maintainer` 负责调用下面的脚本刷新索引：
 
 ```powershell
 & ".\tools\skills\starccm-knowledge-maintainer\scripts\generate-references-index.ps1"
 ```
 
-索引脚本使用相对于 `references/` 的路径，因此仓库克隆到其他电脑后仍然可用。官方 Javadoc、STAR-CCM+ 安装文件、许可证和个人运行目录不进入 Git 仓库。
+索引使用相对于 `references/` 的路径，因此仓库克隆到其他电脑后仍然有效。
 
-## 开源来源与边界
+## 开源边界
 
-- 参考案例来自公开 GitHub 项目，具体来源记录在对应案例的 `README.md` 或 `AGENTS.md` 中。
-- `references/Shared_STARCCM_Libraries/MacroUtils` 保留 [frkasper/MacroUtils](https://github.com/frkasper/MacroUtils) 的原始项目内容。
-- `references/Shared_STARCCM_Libraries/StarClasses_Helper_Library` 来自 [cj8q5/Java_Classes_StarCCM](https://github.com/cj8q5/Java_Classes_StarCCM)。
-- `tools/starccm-javadoc-mcp` 用于查询用户本机的官方 Javadoc，具体许可证和使用说明以其目录内文件为准。
-- Siemens STAR-CCM+ 软件、官方 Javadoc、许可证密钥和相关商标不随本仓库分发。
+- 参考案例来自公开 GitHub 项目，来源记录在对应案例的 `README.md` 或 `AGENTS.md` 中；
+- `MacroUtils` 来源于 [frkasper/MacroUtils](https://github.com/frkasper/MacroUtils)；
+- `StarClasses_Helper_Library` 来源于 [cj8q5/Java_Classes_StarCCM](https://github.com/cj8q5/Java_Classes_StarCCM)；
+- `starccm-javadoc-mcp` 的具体许可证和说明以 `tools/starccm-javadoc-mcp/` 内文件为准；
+- Siemens STAR-CCM+ 软件、官方 Javadoc、许可证密钥和本机运行目录由用户自行提供。
 
-提交新内容前，请先阅读最近目录中的 `AGENTS.md`。尤其要保持完整外部项目的边界，不要把一个外部运行项目拆成零散 Java 文件，也不要把测试、缓存、构建产物和本机绝对路径提交到仓库。
+提交新的参考资料时，请让它具备清晰的功能名称、来源、适用范围和验证信息，使人和 AI 都能快速理解并复用。
